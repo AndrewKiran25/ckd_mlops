@@ -24,9 +24,6 @@ from huggingface_hub import (
     HfApi
 )
 
-# Local LLM
-from llama_cpp import Llama
-
 # Hugging Face Authentication
 hf_token = os.getenv("HF_TOKEN")
 
