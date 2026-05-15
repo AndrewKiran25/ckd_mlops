@@ -46,13 +46,23 @@ TOP_K = 2
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
+# Download PDF from Hugging Face Hub
+print("Downloading PDF from Hugging Face Hub...")
+
+pdf_path = hf_hub_download(
+    repo_id=REPO_ID,
+    repo_type="dataset",
+    filename=PDF_FILENAME,
+    token=hf_token
+)
+
+print(f"PDF downloaded to: {pdf_path}")
+
 # Load PDF Document
 print("Loading PDF document...")
-pdf_loader = PyMuPDFLoader(DATASET_PATH)
-documents = pdf_loader.load()
 
-print("PDF loaded successfully.")
-print(f"Total pages loaded: {len(documents)}")
+pdf_loader = PyMuPDFLoader(pdf_path)
+documents = pdf_loader.load()
 
 # Text Chunking
 print("Performing document chunking...")
@@ -164,7 +174,7 @@ for file_path in files:
 
     api.upload_file(
         path_or_fileobj=file_path,
-        path_in_repo=file_path,
+        path_in_repo=relative_path,
         repo_id=REPO_ID,
         repo_type="dataset",
     )
