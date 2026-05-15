@@ -10,6 +10,7 @@ langchain==0.3.25
 langchain-community==0.3.24
 langchain-huggingface==0.1.2
 langchain-text-splitters==0.3.8
+tiktoken==0.7.0
 
 # Embedding Models
 sentence-transformers==2.7.0
