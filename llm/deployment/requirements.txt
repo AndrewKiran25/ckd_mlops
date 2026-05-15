@@ -4,6 +4,7 @@ pandas==2.2.2
 streamlit==1.43.2
 mlflow==3.0.1
 huggingface_hub==0.25.1
+llama-cpp-python==0.2.90
 
 # LangChain
 langchain==0.3.25
