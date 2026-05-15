@@ -33,11 +33,10 @@ if not hf_token:
 api = HfApi(token=hf_token)
 
 # Dataset Configuration
-DATASET_PATH = "hf://datasets/Andrew2505/CKD-LLM/ckd.pdf"
+DATASET_PATH = "llm/data/ckd.pdf"
 OUTPUT_DIR = "ckd_rag_db"
 REPO_ID = "Andrew2505/CKD-LLM"
 EMBEDDING_MODEL_NAME = "thenlper/gte-large"
-PDF_FILENAME = "ckd.pdf"
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 TOP_K = 2
@@ -46,23 +45,13 @@ TOP_K = 2
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
-# Download PDF from Hugging Face Hub
-print("Downloading PDF from Hugging Face Hub...")
-
-pdf_path = hf_hub_download(
-    repo_id=REPO_ID,
-    repo_type="dataset",
-    filename=PDF_FILENAME,
-    token=hf_token
-)
-
-print(f"PDF downloaded to: {pdf_path}")
-
 # Load PDF Document
 print("Loading PDF document...")
-
-pdf_loader = PyMuPDFLoader(pdf_path)
+pdf_loader = PyMuPDFLoader(DATASET_PATH)
 documents = pdf_loader.load()
+print("PDF loaded successfully.")
+
+print(f"Total pages loaded: {len(documents)}")
 
 # Text Chunking
 print("Performing document chunking...")
