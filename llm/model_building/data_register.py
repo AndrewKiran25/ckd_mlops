@@ -21,7 +21,8 @@ from langchain_community.vectorstores import Chroma
 
 from huggingface_hub import (
     hf_hub_download,
-    HfApi
+    HfApi,
+    create_repo
 )
 
 # Hugging Face Authentication
