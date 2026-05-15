@@ -25,12 +25,8 @@ from huggingface_hub import (
 )
 
 # Hugging Face Authentication
-hf_token = os.getenv("HF_TOKEN")
-
-if not hf_token:
-    raise ValueError("HF_TOKEN is missing!")
-
-api = HfApi(token=hf_token)
+HF_TOKEN = os.getenv("HF_TOKEN")
+api = HfApi(token=HF_TOKEN)
 
 # Dataset Configuration
 DATASET_PATH = "llm/data/ckd.pdf"
@@ -40,6 +36,18 @@ EMBEDDING_MODEL_NAME = "thenlper/gte-large"
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 TOP_K = 2
+
+# Create HF Dataset Repo
+print("Creating Hugging Face dataset repository...")
+
+create_repo(
+    repo_id=REPO_ID,
+    repo_type="dataset",
+    token=HF_TOKEN,
+    exist_ok=True
+)
+
+print("Hugging Face dataset repo ready.")
 
 # Create Output Directory
 if not os.path.exists(OUTPUT_DIR):
