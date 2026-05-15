@@ -18,7 +18,7 @@ sentence-transformers==4.1.0
 chromadb==1.0.12
 
 # Transformers
-transformers==4.36.0
+transformers>=4.39.0
 torch==2.7.0
 accelerate==1.7.0
 
