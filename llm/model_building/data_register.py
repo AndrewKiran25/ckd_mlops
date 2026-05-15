@@ -1,180 +1,29 @@
-
+from huggingface_hub.utils import RepositoryNotFoundError, HfHubHTTPError
+from huggingface_hub import HfApi, create_repo
 import os
-import warnings
 
-warnings.filterwarnings("ignore")
+repo_id = "Andrew2505/CKD-LLM"
+repo_type = "dataset"
 
-# Tokenizer
-import tiktoken
+hf_token = os.getenv("HF_TOKEN")
 
-# LangChain Components
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import (
-    PyMuPDFLoader
+if not hf_token:
+    raise ValueError("HF_TOKEN is missing!")
+
+# Initialize API client
+api = HfApi(token=hf_token)
+
+# Step 1: Check if the space exists
+try:
+    api.repo_info(repo_id=repo_id, repo_type=repo_type)
+    print(f"Space '{repo_id}' already exists. Using it.")
+except RepositoryNotFoundError:
+    print(f"Space '{repo_id}' not found. Creating new space...")
+    create_repo(repo_id=repo_id, repo_type=repo_type, private=False)
+    print(f"Space '{repo_id}' created.")
+
+api.upload_folder(
+    folder_path="llm/data",
+    repo_id=repo_id,
+    repo_type=repo_type,
 )
-from langchain_community.embeddings import (
-    SentenceTransformerEmbeddings
-)
-from langchain_community.vectorstores import Chroma
-
-# Hugging Face
-
-from huggingface_hub import (
-    hf_hub_download,
-    HfApi,
-    create_repo
-)
-
-# Hugging Face Authentication
-HF_TOKEN = os.getenv("HF_TOKEN")
-api = HfApi(token=HF_TOKEN)
-
-# Dataset Configuration
-DATASET_PATH = "llm/data/ckd.pdf"
-OUTPUT_DIR = "ckd_rag_db"
-REPO_ID = "Andrew2505/CKD-LLM"
-EMBEDDING_MODEL_NAME = "thenlper/gte-large"
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
-TOP_K = 2
-
-# Create HF Dataset Repo
-print("Creating Hugging Face dataset repository...")
-
-create_repo(
-    repo_id=REPO_ID,
-    repo_type="dataset",
-    token=HF_TOKEN,
-    exist_ok=True
-)
-
-print("Hugging Face dataset repo ready.")
-
-# Create Output Directory
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
-
-# Load PDF Document
-print("Loading PDF document...")
-pdf_loader = PyMuPDFLoader(DATASET_PATH)
-documents = pdf_loader.load()
-print("PDF loaded successfully.")
-
-print(f"Total pages loaded: {len(documents)}")
-
-# Text Chunking
-print("Performing document chunking...")
-
-text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    encoding_name="cl100k_base",
-    chunk_size=200,
-    chunk_overlap=30,
-    separators=["\n\n", "\n", ".", " ", ""]
-)
-
-document_chunks = text_splitter.split_documents(documents)
-
-print(f"Total chunks created: {len(document_chunks)}")
-
-
-# Remove Duplicate Chunks
-print("Removing duplicate chunks...")
-
-unique_chunks = []
-seen = set()
-
-for chunk in document_chunks:
-    if chunk.page_content not in seen:
-        unique_chunks.append(chunk)
-        seen.add(chunk.page_content)
-
-document_chunks = unique_chunks
-
-print(
-    f"Unique chunks after deduplication: "
-    f"{len(document_chunks)}"
-)
-
-# Embedding Model
-print("Loading embedding model...")
-
-embedding_model = SentenceTransformerEmbeddings(
-    model_name=EMBEDDING_MODEL_NAME
-)
-
-print("Embedding model loaded successfully.")
-
-# Create Chroma Vector Database
-print("Creating Chroma vector database...")
-
-vectorstore = Chroma.from_documents(
-    documents=document_chunks,
-    embedding=embedding_model,
-    persist_directory=OUTPUT_DIR
-)
-
-print("Chroma vector database created successfully.")
-
-# Persist Database
-print("Persisting vector database...")
-vectorstore.persist()
-
-print("Vector database persisted successfully.")
-
-# Load Persistent Vector Database
-vectorstore = Chroma(
-    persist_directory=OUTPUT_DIR,
-    embedding_function=embedding_model
-)
-
-print("Persistent vector database loaded successfully.")
-
-# Create Retriever
-retriever = vectorstore.as_retriever(
-    search_type="similarity",
-    search_kwargs={"k": 2}
-)
-
-print("Retriever created successfully.")
-
-# Test Retrieval
-query = (
-    "What are the symptoms of "
-    "chronic kidney disease?"
-)
-
-print(f"\nTest Query: {query}")
-retrieved_docs = retriever.invoke(query)
-print("\nRetrieved Chunks:\n")
-
-for idx, doc in enumerate(retrieved_docs):
-    print(f"Chunk {idx+1}")
-    print(doc.page_content)
-    print("-" * 50)
-
-# Upload Vector Database Files
-print("\nUploading vector database files...")
-
-files = []
-
-for root, dirs, filenames in os.walk(OUTPUT_DIR):
-    for filename in filenames:
-        file_path = os.path.join(root, filename)
-        files.append(file_path)
-
-# Upload Files to Hugging Face
-for file_path in files:
-
-    relative_path = os.path.relpath(
-        file_path,
-        OUTPUT_DIR
-    )
-
-    api.upload_file(
-        path_or_fileobj=file_path,
-        path_in_repo=relative_path,
-        repo_id=REPO_ID,
-        repo_type="dataset",
-    )
-
-print("Upload completed successfully.")

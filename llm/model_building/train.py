@@ -181,7 +181,7 @@ for file_path in files:
 
     api.upload_file(
         path_or_fileobj=file_path,
-        path_in_repo=file_path,
+        path_in_repo=relative_path,
         repo_id=REPO_ID,
         repo_type="model",
     )
