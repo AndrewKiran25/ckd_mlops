@@ -171,66 +171,47 @@ prompt = PromptTemplate(
 
 def generate_response(query):
 
-    # -----------------------------------------------------
     # RETRIEVE DOCUMENTS
-    # -----------------------------------------------------
-
     retrieved_docs = retriever.invoke(query)
-
-    # -----------------------------------------------------
     # COMBINE CONTEXT
-    # -----------------------------------------------------
-
     context = "\n\n".join(
         [
             doc.page_content
             for doc in retrieved_docs
         ]
     )
-
-    # -----------------------------------------------------
     # FORMAT PROMPT
-    # -----------------------------------------------------
-
     formatted_prompt = prompt.format(
         context=context,
         question=query
     )
-
-    # -----------------------------------------------------
     # GENERATE RESPONSE
-    # -----------------------------------------------------
-try:
+    try:
     
-    response = llm(
+        response = llm(
         formatted_prompt,
         max_tokens=MAX_TOKENS,
         temperature=TEMPERATURE,
         stop=[
             "Question:",
             "Context:"
-        ]
-    )
+            ]
+        )
     
-    print(response)
+        print(response)
     
-    answer = (
-        response["choices"][0]["text"]
-        .strip()
-    )
+        answer = (
+            response["choices"][0]["text"]
+            .strip()
+        )
+        
+        return answer, retrieved_docs
+        
+    except Exception as e:
+        print(f"LLM Error: {e}")
+        return "Error generating response.", []
 
-    return answer, retrieved_docs
-
-except Exception as e:
-
-    print(f"LLM Error: {e}")
-
-    return "Error generating response.", []
-
-# =========================================================
 # TEST QUERY
-# =========================================================
-
 if __name__ == "__main__":
 
     print("\n" + "=" * 60)
