@@ -1,15 +1,15 @@
-
 # Core Libraries
+streamlit==1.35.0
 pandas==2.2.2
-streamlit==1.43.2
+numpy==1.26.4
 mlflow==3.0.1
-huggingface_hub==0.25.1
+huggingface_hub==0.23.4
 llama-cpp-python==0.2.90
 
 # LangChain
-langchain==0.3.25
-langchain-community==0.3.24
-langchain-huggingface==0.1.2
+langchain==0.2.14
+langchain-community==0.2.12
+langchain-huggingface==0.0.3
 langchain-text-splitters==0.3.8
 tiktoken==0.7.0
 
@@ -17,19 +17,17 @@ tiktoken==0.7.0
 sentence-transformers==2.7.0
 
 # Vector Database
-chromadb==1.0.12
+chromadb==0.5.5
 
 # Transformers
-transformers>=4.39.0
-torch==2.7.0
-accelerate==0.31.0
+transformers==4.41.2
 tokenizers==0.19.1
 
 # PDF Processing
 pymupdf==1.26.0
 
 # Additional Utilities
-numpy==1.26.4
+protobuf==5.29.3
 scikit-learn==1.6.1
 tensorflow==2.20.0
 tf-keras==2.20.1
