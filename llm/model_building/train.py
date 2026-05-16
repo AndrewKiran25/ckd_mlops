@@ -200,7 +200,8 @@ def generate_response(query):
     # -----------------------------------------------------
     # GENERATE RESPONSE
     # -----------------------------------------------------
-
+try:
+    
     response = llm(
         formatted_prompt,
         max_tokens=MAX_TOKENS,
@@ -217,6 +218,12 @@ def generate_response(query):
     )
 
     return answer, retrieved_docs
+
+except Exception as e:
+
+        print(f"LLM Error: {e}")
+
+        return "Error generating response.", []
 
 # =========================================================
 # TEST QUERY
