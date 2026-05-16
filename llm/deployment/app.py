@@ -44,11 +44,9 @@ st.markdown(
 @st.cache_resource
 def load_embedding_model():
 
-    embedding_model = (
-        SentenceTransformerEmbeddings(
-            model_name="thenlper/gte-large"
-        )
-    )
+    embedding_model = HuggingFaceEmbeddings(
+    model_name="thenlper/gte-large"
+)
 
     return embedding_model
 
@@ -175,9 +173,7 @@ def generate_rag_response(
     # Generate Response
     try:
 
-        response = llm.predict(
-            prompt
-        )
+        rresponse = llm.invoke(prompt)
 
         response_text = response.strip()
 
