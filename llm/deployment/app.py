@@ -15,8 +15,8 @@ from langchain_community.embeddings import (
 
 # Transformers
 from transformers import pipeline
-
 from langchain_huggingface import HuggingFacePipeline
+from langchain_huggingface import HuggingFaceEmbeddings
 
 # Page Configuration
 st.set_page_config(
