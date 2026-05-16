@@ -83,7 +83,7 @@ def load_retriever():
 def load_llm():
 
     pipe = pipeline(
-        "text-generation",
+        "text2text-generation",
         model="google/flan-t5-base",
         max_new_tokens=256,
         temperature=0
