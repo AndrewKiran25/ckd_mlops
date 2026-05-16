@@ -1,5 +1,3 @@
-%%writefile llm/model_building/train.py
-
 import os
 import warnings
 warnings.filterwarnings("ignore")
