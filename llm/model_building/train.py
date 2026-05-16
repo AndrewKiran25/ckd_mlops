@@ -1,40 +1,71 @@
+# =========================================================
+# CKD RAG PIPELINE
+# =========================================================
+
 import os
 import warnings
+
 warnings.filterwarnings("ignore")
 
-# LangChain Components
-from langchain_community.vectorstores import Chroma
+# =========================================================
+# LANGCHAIN IMPORTS
+# =========================================================
+
+from langchain_chroma import Chroma
+
 from langchain.prompts import PromptTemplate
 
-# Recommended Embeddings Import
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import (
+    HuggingFaceEmbeddings
+)
 
-# Hugging Face
-from huggingface_hub import hf_hub_download, HfApi
+# =========================================================
+# HUGGING FACE IMPORTS
+# =========================================================
 
-# Local LLM
+from huggingface_hub import (
+    hf_hub_download
+)
+
+# =========================================================
+# LOCAL LLM IMPORT
+# =========================================================
+
 from llama_cpp import Llama
 
-# Configuration
+# =========================================================
+# CONFIGURATION
+# =========================================================
 
 VECTOR_DB_DIR = "ckd_rag_db"
-MODEL_REPO_ID = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
-MODEL_FILE = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
-EMBEDDING_MODEL_NAME = "thenlper/gte-large"
-TOP_K = 2
+
+MODEL_REPO_ID = (
+    "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
+)
+
+MODEL_FILE = (
+    "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
+)
+
+EMBEDDING_MODEL_NAME = (
+    "thenlper/gte-large"
+)
+
+TOP_K = 3
+
 MAX_TOKENS = 512
+
 TEMPERATURE = 0.2
+
 CONTEXT_WINDOW = 4096
 
-hf_token = os.getenv("HF_TOKEN")
+# =========================================================
+# LOAD EMBEDDING MODEL
+# =========================================================
 
-if not hf_token:
-    raise ValueError("HF_TOKEN is missing!")
-
-api = HfApi(token=hf_token)
-
-# Load Embedding Model
+print("=" * 60)
 print("Loading embedding model...")
+print("=" * 60)
 
 embedding_model = HuggingFaceEmbeddings(
     model_name=EMBEDDING_MODEL_NAME
@@ -42,9 +73,13 @@ embedding_model = HuggingFaceEmbeddings(
 
 print("Embedding model loaded successfully.")
 
-# Load Chroma Vector Database
+# =========================================================
+# LOAD CHROMA VECTOR DATABASE
+# =========================================================
 
+print("\n" + "=" * 60)
 print("Loading Chroma vector database...")
+print("=" * 60)
 
 vectorstore = Chroma(
     persist_directory=VECTOR_DB_DIR,
@@ -53,7 +88,9 @@ vectorstore = Chroma(
 
 print("Vector database loaded successfully.")
 
-# Create Retriever
+# =========================================================
+# CREATE RETRIEVER
+# =========================================================
 
 retriever = vectorstore.as_retriever(
     search_type="similarity",
@@ -62,19 +99,28 @@ retriever = vectorstore.as_retriever(
 
 print("Retriever initialized successfully.")
 
-# Download GGUF Model from Hugging Face
-print("Downloading GGUF model from Hugging Face...")
+# =========================================================
+# DOWNLOAD GGUF MODEL
+# =========================================================
+
+print("\n" + "=" * 60)
+print("Downloading GGUF model...")
+print("=" * 60)
 
 model_path = hf_hub_download(
     repo_id=MODEL_REPO_ID,
     filename=MODEL_FILE
 )
 
-print(f"Model downloaded successfully: {model_path}")
+print(f"Model downloaded successfully:\n{model_path}")
 
-# Load Local LLM
+# =========================================================
+# LOAD LOCAL LLM
+# =========================================================
 
+print("\n" + "=" * 60)
 print("Loading local LLM...")
+print("=" * 60)
 
 llm = Llama(
     model_path=model_path,
@@ -85,16 +131,21 @@ llm = Llama(
 
 print("Local LLM loaded successfully.")
 
-# Prompt Template
+# =========================================================
+# PROMPT TEMPLATE
+# =========================================================
+
 prompt_template = """
-You are a helpful AI assistant specialized in
-Chronic Kidney Disease (CKD).
+You are a helpful AI assistant specialized
+in Chronic Kidney Disease (CKD).
 
-Use the provided context to answer the question.
+Answer the question ONLY using the
+provided context.
 
-If the answer is not available in the context,
-say:
-"I could not find the answer in the provided documents."
+If the answer is not found in the context,
+reply with:
+
+"I don't know."
 
 Context:
 {context}
@@ -107,82 +158,109 @@ Answer:
 
 prompt = PromptTemplate(
     template=prompt_template,
-    input_variables=["context", "question"]
+    input_variables=[
+        "context",
+        "question"
+    ]
 )
 
-# RAG Inference Function
+# =========================================================
+# GENERATE RESPONSE FUNCTION
+# =========================================================
 
 def generate_response(query):
 
-    # Retrieve Documents
+    # -----------------------------------------------------
+    # RETRIEVE DOCUMENTS
+    # -----------------------------------------------------
+
     retrieved_docs = retriever.invoke(query)
 
+    # -----------------------------------------------------
+    # COMBINE CONTEXT
+    # -----------------------------------------------------
+
     context = "\n\n".join(
-        [doc.page_content for doc in retrieved_docs]
+        [
+            doc.page_content
+            for doc in retrieved_docs
+        ]
     )
 
-    # Format Prompt
+    # -----------------------------------------------------
+    # FORMAT PROMPT
+    # -----------------------------------------------------
+
     formatted_prompt = prompt.format(
         context=context,
         question=query
     )
 
-    # Generate Response
+    # -----------------------------------------------------
+    # GENERATE RESPONSE
+    # -----------------------------------------------------
+
     response = llm(
         formatted_prompt,
         max_tokens=MAX_TOKENS,
         temperature=TEMPERATURE,
-        stop=["Question:", "Context:"]
+        stop=[
+            "Question:",
+            "Context:"
+        ]
     )
 
-    answer = response["choices"][0]["text"].strip()
+    answer = (
+        response["choices"][0]["text"]
+        .strip()
+    )
 
     return answer, retrieved_docs
 
+# =========================================================
+# TEST QUERY
+# =========================================================
 
-# Interactive Chat Loop
-print("\nCKD RAG Chatbot is Ready!")
-print("Type 'exit' to quit.\n")
+if __name__ == "__main__":
 
-while True:
-    user_query = input("User: ")
+    print("\n" + "=" * 60)
+    print("CKD RAG PIPELINE TEST")
+    print("=" * 60)
 
-    # Exit
-    if user_query.lower() == "exit":
-        print("Exiting chatbot...")
-        break
+    test_query = (
+        "What are the symptoms of "
+        "chronic kidney disease?"
+    )
 
-    # Upload Command
-    elif user_query.lower() == "upload":
+    print("\nTest Query:\n")
+    print(test_query)
 
-        try:
-            upload_to_huggingface()
-
-        except Exception as e:
-            print(f"Upload Error: {e}")
-
-        continue
-
-    # Generate Response
     try:
 
-        answer, docs = generate_response(user_query)
+        answer, docs = generate_response(
+            test_query
+        )
 
-        print("\nAssistant:")
+        print("\nGenerated Answer:\n")
         print(answer)
 
         print("\nRetrieved Sources:\n")
 
         for idx, doc in enumerate(docs):
-            print(f"Source Chunk {idx+1}:")
-            print(doc.page_content[:500])
-            print("-" * 50)
 
-        print("\n")
+            print(f"Source Chunk {idx + 1}:\n")
+
+            print(
+                doc.page_content[:500]
+            )
+
+            print("\n" + "-" * 60)
+
+        print("\nPipeline completed successfully.")
 
     except Exception as e:
 
-        print(f"Error: {e}")
+        print(f"\nError: {e}")
 
 # Upload Files to Hugging Face
 for file_path in files:
