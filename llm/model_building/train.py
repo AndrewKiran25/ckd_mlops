@@ -1,32 +1,42 @@
-# CKD RAG CHATBOT - FINAL CLEAN VERSION
+%%writefile llm/model_building/train.py
+
 import os
 import warnings
 warnings.filterwarnings("ignore")
 
-# LANGCHAIN IMPORTS
-from langchain_chroma import Chroma
+# LangChain Components
+from langchain_community.vectorstores import Chroma
+from langchain.prompts import PromptTemplate
+
+# Recommended Embeddings Import
 from langchain_huggingface import HuggingFaceEmbeddings
 
-# HUGGING FACE IMPORTS
-from huggingface_hub import hf_hub_download
+# Hugging Face
+from huggingface_hub import hf_hub_download, HfApi
 
-# LOCAL LLM
+# Local LLM
 from llama_cpp import Llama
 
-# CONFIGURATION
+# Configuration
+
 VECTOR_DB_DIR = "ckd_rag_db"
 MODEL_REPO_ID = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
 MODEL_FILE = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
 EMBEDDING_MODEL_NAME = "thenlper/gte-large"
-TOP_K = 3
+TOP_K = 2
 MAX_TOKENS = 512
 TEMPERATURE = 0.2
 CONTEXT_WINDOW = 4096
 
-# LOAD EMBEDDING MODEL
-print("=" * 60)
+hf_token = os.getenv("HF_TOKEN")
+
+if not hf_token:
+    raise ValueError("HF_TOKEN is missing!")
+
+api = HfApi(token=hf_token)
+
+# Load Embedding Model
 print("Loading embedding model...")
-print("=" * 60)
 
 embedding_model = HuggingFaceEmbeddings(
     model_name=EMBEDDING_MODEL_NAME
@@ -34,10 +44,9 @@ embedding_model = HuggingFaceEmbeddings(
 
 print("Embedding model loaded successfully.")
 
-# LOAD CHROMA VECTOR DATABASE
-print("\n" + "=" * 60)
+# Load Chroma Vector Database
+
 print("Loading Chroma vector database...")
-print("=" * 60)
 
 vectorstore = Chroma(
     persist_directory=VECTOR_DB_DIR,
@@ -46,7 +55,8 @@ vectorstore = Chroma(
 
 print("Vector database loaded successfully.")
 
-# CREATE RETRIEVER
+# Create Retriever
+
 retriever = vectorstore.as_retriever(
     search_type="similarity",
     search_kwargs={"k": TOP_K}
@@ -54,22 +64,19 @@ retriever = vectorstore.as_retriever(
 
 print("Retriever initialized successfully.")
 
-# DOWNLOAD GGUF MODEL
-print("\n" + "=" * 60)
-print("Downloading GGUF model...")
-print("=" * 60)
+# Download GGUF Model from Hugging Face
+print("Downloading GGUF model from Hugging Face...")
 
 model_path = hf_hub_download(
     repo_id=MODEL_REPO_ID,
     filename=MODEL_FILE
 )
 
-print(f"Model downloaded successfully:\n{model_path}")
+print(f"Model downloaded successfully: {model_path}")
 
-# LOAD LOCAL LLM
-print("\n" + "=" * 60)
+# Load Local LLM
+
 print("Loading local LLM...")
-print("=" * 60)
 
 llm = Llama(
     model_path=model_path,
@@ -80,177 +87,118 @@ llm = Llama(
 
 print("Local LLM loaded successfully.")
 
-# RESPONSE GENERATION FUNCTION
-def generate_response(user_query):
-    retrieved_docs = retriever.invoke(user_query)
+# Prompt Template
+prompt_template = """
+You are a helpful AI assistant specialized in
+Chronic Kidney Disease (CKD).
 
-    context = "\n\n".join(
-        [
-            doc.page_content
-            for doc in retrieved_docs
-        ]
-    )
-
-
-
-prompt = f"""
-You are a helpful medical assistant.
-
-Answer the question ONLY from the provided context.
+Use the provided context to answer the question.
 
 If the answer is not available in the context,
-reply with:
-
-"I don't know."
+say:
+"I could not find the answer in the provided documents."
 
 Context:
 {context}
 
 Question:
-{user_query}
+{question}
 
 Answer:
 """
 
-    # Generate LLM Response
+prompt = PromptTemplate(
+    template=prompt_template,
+    input_variables=["context", "question"]
+)
 
+# RAG Inference Function
 
+def generate_response(query):
+
+    # Retrieve Documents
+    retrieved_docs = retriever.invoke(query)
+
+    context = "\n\n".join(
+        [doc.page_content for doc in retrieved_docs]
+    )
+
+    # Format Prompt
+    formatted_prompt = prompt.format(
+        context=context,
+        question=query
+    )
+
+    # Generate Response
     response = llm(
-        prompt,
+        formatted_prompt,
         max_tokens=MAX_TOKENS,
         temperature=TEMPERATURE,
         stop=["Question:", "Context:"]
     )
 
-    answer = (
-        response["choices"][0]["text"]
-        .strip()
-    )
+    answer = response["choices"][0]["text"].strip()
 
     return answer, retrieved_docs
 
 
-# TEST QUERY
-print("\n" + "=" * 60)
-print("Running test query...")
-print("=" * 60)
-
-test_query = (
-    "What are the symptoms of chronic kidney disease?"
-)
-
-answer, docs = generate_response(test_query)
-
-print(f"\nQuestion:\n{test_query}")
-
-print("\nAnswer:\n")
-print(answer)
-
-print("\nRetrieved Sources:\n")
-
-for idx, doc in enumerate(docs):
-
-    print(f"Source Chunk {idx + 1}:\n")
-
-    print(doc.page_content[:500])
-
-    print("\n" + "-" * 60)
-
-
-# INTERACTIVE CHAT LOOP
-print("\n" + "=" * 60)
-print("CKD RAG CHATBOT READY")
-print("=" * 60)
-
-print("\nType 'exit' to quit.\n")
+# Interactive Chat Loop
+print("\nCKD RAG Chatbot is Ready!")
+print("Type 'exit' to quit.\n")
 
 while True:
-
     user_query = input("User: ")
 
-    # ---------------------------------------------
-    # Exit Condition
-    # ---------------------------------------------
-
+    # Exit
     if user_query.lower() == "exit":
-
-        print("\nExiting chatbot...")
+        print("Exiting chatbot...")
         break
 
-    # ---------------------------------------------
-    # Generate Response
-    # ---------------------------------------------
+    # Upload Command
+    elif user_query.lower() == "upload":
 
+        try:
+            upload_to_huggingface()
+
+        except Exception as e:
+            print(f"Upload Error: {e}")
+
+        continue
+
+    # Generate Response
     try:
 
-        answer, docs = generate_response(
-            user_query
-        )
+        answer, docs = generate_response(user_query)
 
-        print("\nAssistant:\n")
-
+        print("\nAssistant:")
         print(answer)
 
         print("\nRetrieved Sources:\n")
 
         for idx, doc in enumerate(docs):
+            print(f"Source Chunk {idx+1}:")
+            print(doc.page_content[:500])
+            print("-" * 50)
 
-            print(f"Source Chunk {idx + 1}:\n")
-
-            print(
-                doc.page_content[:500]
-            )
-
-            print("\n" + "-" * 60)
+        print("\n")
 
     except Exception as e:
 
-        print(f"\nError: {e}")
-# OPTIONAL: UPLOAD FILES TO HUGGING FACE
-def upload_to_huggingface():
+        print(f"Error: {e}")
 
-    if not HF_TOKEN:
-        raise ValueError(
-            "HF_TOKEN environment variable is missing!"
-        )
+# Upload Files to Hugging Face
+for file_path in files:
 
-    if not os.path.exists(OUTPUT_DIR):
-        print(f"Output directory '{OUTPUT_DIR}' not found.")
-        return
+    relative_path = os.path.relpath(
+        file_path,
+        OUTPUT_DIR
+    )
 
-    api = HfApi(token=HF_TOKEN)
+    api.upload_file(
+        path_or_fileobj=file_path,
+        path_in_repo=relative_path,
+        repo_id=REPO_ID,
+        repo_type="model",
+    )
 
-    files = []
-
-    # Collect Files
-    for root, dirs, filenames in os.walk(OUTPUT_DIR):
-
-        for filename in filenames:
-
-            full_path = os.path.join(root, filename)
-
-            files.append(full_path)
-
-    if len(files) == 0:
-        print("No files found for upload.")
-        return
-
-    # Upload Files
-    for file_path in files:
-
-        relative_path = os.path.relpath(
-            file_path,
-            OUTPUT_DIR
-        )
-
-        print(f"Uploading: {relative_path}")
-
-        api.upload_file(
-            path_or_fileobj=file_path,
-            path_in_repo=relative_path,
-            repo_id=REPO_ID,
-            repo_type="model"
-        )
-
-    print("Upload completed successfully.")
-
+print("Upload completed successfully.")
