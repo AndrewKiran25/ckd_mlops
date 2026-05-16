@@ -243,4 +243,3 @@ if st.button("Generate Answer"):
         st.write(
             f"Response Time: {latency} seconds"
         )
-
