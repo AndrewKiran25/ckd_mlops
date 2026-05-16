@@ -29,5 +29,3 @@ pymupdf==1.26.0
 # Additional Utilities
 protobuf==4.25.3
 scikit-learn==1.6.1
-tensorflow==2.20.0
-tf-keras==2.20.1
