@@ -211,7 +211,9 @@ try:
             "Context:"
         ]
     )
-
+    
+    print(response)
+    
     answer = (
         response["choices"][0]["text"]
         .strip()
@@ -221,9 +223,9 @@ try:
 
 except Exception as e:
 
-        print(f"LLM Error: {e}")
+    print(f"LLM Error: {e}")
 
-        return "Error generating response.", []
+    return "Error generating response.", []
 
 # =========================================================
 # TEST QUERY
