@@ -261,20 +261,3 @@ if __name__ == "__main__":
     except Exception as e:
 
         print(f"\nError: {e}")
-
-# Upload Files to Hugging Face
-for file_path in files:
-
-    relative_path = os.path.relpath(
-        file_path,
-        OUTPUT_DIR
-    )
-
-    api.upload_file(
-        path_or_fileobj=file_path,
-        path_in_repo=relative_path,
-        repo_id=REPO_ID,
-        repo_type="model",
-    )
-
-print("Upload completed successfully.")
