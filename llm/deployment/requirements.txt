@@ -29,7 +29,7 @@ tokenizers==0.19.1
 pymupdf==1.26.0
 
 # Additional Utilities
-numpy==2.2.6
+numpy==1.26.4
 scikit-learn==1.6.1
 tensorflow==2.20.0
 tf-keras==2.20.1
