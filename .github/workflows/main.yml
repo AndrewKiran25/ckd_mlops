@@ -71,6 +71,16 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python llm/model_building/train.py
 
+      #VERIFY VECTOR DB EXISTS
+      - name: Verify CKD RAG DB
+        run: |
+          ls -R ckd_rag_db
+
+      # UPLOAD TO HUGGING FACE
+      - name: Upload CKD RAG DB
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python llm/model_building/upload.py
 
   deploy-hosting:
     needs: model-training
