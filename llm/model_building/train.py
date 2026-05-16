@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 # LANGCHAIN IMPORTS
 # =========================================================
 
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import Chroma
 
 from langchain.prompts import PromptTemplate
 
