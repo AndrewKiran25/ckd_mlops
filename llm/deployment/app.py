@@ -173,7 +173,7 @@ def generate_rag_response(
     # Generate Response
     try:
 
-        rresponse = llm.invoke(prompt)
+        response = llm.invoke(prompt)
 
         response_text = str(response).strip()
 
