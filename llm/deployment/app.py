@@ -175,7 +175,7 @@ def generate_rag_response(
 
         rresponse = llm.invoke(prompt)
 
-        response_text = response.strip()
+        response_text = str(response).strip()
 
     except Exception as e:
 
