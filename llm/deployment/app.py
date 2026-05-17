@@ -121,7 +121,7 @@ def load_llm():
     
     except Exception as e:
         print(f"Download Error: {e}")
-        eturn None
+        return None
 
 # Prompt Templates
 qna_system_message = """
