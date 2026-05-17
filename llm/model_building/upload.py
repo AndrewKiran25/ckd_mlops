@@ -10,7 +10,7 @@ from huggingface_hub import (
 # CONFIGURATION
 hf_token = os.getenv("HF_TOKEN")
 REPO_ID = "Andrew2505/CKD-LLM"
-folder_path=VECTOR_DB_DIR
+VECTOR_DB_DIR = "ckd_db"
 
 # CHECK TOKEN
 if not hf_token:
