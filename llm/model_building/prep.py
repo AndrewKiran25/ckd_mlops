@@ -69,8 +69,8 @@ print("Performing document chunking...")
 
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     encoding_name="cl100k_base",
-    chunk_size=200,
-    chunk_overlap=30,
+    chunk_size=CHUNK_SIZE,
+    chunk_overlap=CHUNK_OVERLAP,
     separators=["\n\n", "\n", ".", " ", ""]
 )
 
