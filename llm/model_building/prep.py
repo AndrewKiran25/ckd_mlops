@@ -119,12 +119,6 @@ vectorstore = Chroma.from_documents(
 
 print("Chroma vector database created successfully.")
 
-# Persist Database
-print("Persisting vector database...")
-vectorstore.persist()
-
-print("Vector database persisted successfully.")
-
 # Load Persistent Vector Database
 vectorstore = Chroma(
     persist_directory=OUTPUT_DIR,
