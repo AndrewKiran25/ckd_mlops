@@ -7,7 +7,7 @@ import time
 warnings.filterwarnings("ignore")
 
 # LangChain
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 # Transformers
 from transformers import pipeline
