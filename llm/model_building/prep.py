@@ -1,7 +1,6 @@
 
 import os
 import warnings
-
 warnings.filterwarnings("ignore")
 
 # Tokenizer
@@ -15,7 +14,7 @@ from langchain_community.document_loaders import (
 from langchain_huggingface import (
     HuggingFaceEmbeddings
 )
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 # Hugging Face
 
