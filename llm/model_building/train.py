@@ -67,10 +67,6 @@ print("Loading embedding model...")
 print("=" * 60)
 
 embedding_model = HuggingFaceEmbeddings(
-    model_name=EMBEDDING_MODEL_NAME
-)
-
-embedding_model = HuggingFaceEmbeddings(
     model_name=EMBEDDING_MODEL_NAME,
     encode_kwargs={
         "normalize_embeddings": True
