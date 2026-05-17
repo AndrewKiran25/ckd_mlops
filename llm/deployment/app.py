@@ -1,7 +1,3 @@
-
-# Install Streamlit
-!pip install streamlit
-
 # Import Libraries
 import streamlit as st
 import warnings
