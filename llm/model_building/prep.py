@@ -1,6 +1,7 @@
 
 import os
 import warnings
+
 warnings.filterwarnings("ignore")
 
 # Tokenizer
@@ -11,10 +12,10 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import (
     PyMuPDFLoader
 )
-from langchain_huggingface import (
-    HuggingFaceEmbeddings
+from langchain_community.embeddings import (
+    SentenceTransformerEmbeddings
 )
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import Chroma
 
 # Hugging Face
 
@@ -31,18 +32,18 @@ if not hf_token:
 
 api = HfApi(token=hf_token)
 
-# Dataset Configuration
-DATASET_PATH = "hf://datasets/Andrew2505/CKD-LLM/ckd.pdf"
-OUTPUT_DIR = "ckd_rag_db"
+# Create Output Directory
+out_dir = 'ckd_db'
+
+if not os.path.exists(out_dir):
+  os.makedirs(out_dir)
+
 REPO_ID = "Andrew2505/CKD-LLM"
+Embedding_model_name = "thenlper/gte-large"
 PDF_FILENAME = "ckd.pdf"
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 TOP_K = 2
-
-# Create Output Directory
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
 
 # Download PDF from Hugging Face Hub
 print("Downloading PDF from Hugging Face Hub...")
@@ -67,15 +68,13 @@ print("Performing document chunking...")
 
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     encoding_name="cl100k_base",
-    chunk_size=CHUNK_SIZE,
-    chunk_overlap=CHUNK_OVERLAP,
+    chunk_size=200,
+    chunk_overlap=30,
     separators=["\n\n", "\n", ".", " ", ""]
 )
 
 document_chunks = text_splitter.split_documents(documents)
-
 print(f"Total chunks created: {len(document_chunks)}")
-
 
 # Remove Duplicate Chunks
 print("Removing duplicate chunks...")
@@ -98,11 +97,8 @@ print(
 # Embedding Model
 print("Loading embedding model...")
 
-embedding_model = HuggingFaceEmbeddings(
-    model_name="thenlper/gte-large",
-    encode_kwargs={
-        "normalize_embeddings": True
-    }
+embedding_model = SentenceTransformerEmbeddings(
+    model_name=Embedding_model_name
 )
 
 print("Embedding model loaded successfully.")
@@ -113,15 +109,20 @@ print("Creating Chroma vector database...")
 vectorstore = Chroma.from_documents(
     documents=document_chunks,
     embedding=embedding_model,
-    persist_directory=OUTPUT_DIR
+    persist_directory=out_dir
 )
 
-print("DB COUNT:", vectorstore._collection.count())
 print("Chroma vector database created successfully.")
+
+# Persist Database - Save the vector database permanently to disk.
+print("Persisting vector database...")
+vectorstore.persist()
+
+print("Vector database persisted successfully.")
 
 # Load Persistent Vector Database
 vectorstore = Chroma(
-    persist_directory=OUTPUT_DIR,
+    persist_directory=out_dir,
     embedding_function=embedding_model
 )
 
@@ -153,13 +154,17 @@ for idx, doc in enumerate(retrieved_docs):
 # Upload Vector Database Files
 print("\nUploading vector database files...")
 
-from huggingface_hub import upload_folder
+files = os.listdir(out_dir)
 
-upload_folder(
-    folder_path=OUTPUT_DIR,
-    repo_id=REPO_ID,
-    repo_type="dataset",
-    token=hf_token
-)
+for file in files:
+    file_path = os.path.join(out_dir, file)
+    if os.path.isfile(file_path):
+
+        api.upload_file(
+            path_or_fileobj=file_path,
+            path_in_repo=file,
+            repo_id=REPO_ID,
+            repo_type="dataset",
+        )
 
 print("Upload completed successfully.")

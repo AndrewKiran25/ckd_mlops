@@ -1,3 +1,4 @@
+
 # UPLOAD PROJECT TO HUGGING FACE HUB
 import os
 from huggingface_hub import (
@@ -26,7 +27,7 @@ print("Hugging Face API initialized.")
 create_repo(
     repo_id=REPO_ID,
     repo_type="dataset",
-    token=hf_token,
+    token=HF_TOKEN,
     exist_ok=True
 )
 
@@ -37,7 +38,7 @@ api.upload_folder(
     folder_path=PROJECT_FOLDER,
     repo_id=REPO_ID,
     repo_type="dataset",
-    token=hf_token,
+    token=HF_TOKEN,
 )
 
 print("Upload completed successfully.")

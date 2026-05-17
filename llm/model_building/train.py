@@ -1,42 +1,26 @@
 
-# =========================================================
 # CKD RAG PIPELINE
-# =========================================================
-
 import os
 import warnings
-
 warnings.filterwarnings("ignore")
 
-# =========================================================
 # LANGCHAIN IMPORTS
-# =========================================================
-
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
 from langchain_huggingface import (
     HuggingFaceEmbeddings
 )
 
-# =========================================================
 # HUGGING FACE IMPORTS
-# =========================================================
-
 from huggingface_hub import (
     hf_hub_download
 )
 
-# =========================================================
 # LOCAL LLM IMPORT
-# =========================================================
-
 from llama_cpp import Llama
 
-# =========================================================
 # CONFIGURATION
-# =========================================================
-
-VECTOR_DB_DIR = "ckd_rag_db"
+VECTOR_DB_DIR = "ckd_db"
 
 MODEL_REPO_ID = (
     "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
@@ -46,39 +30,28 @@ MODEL_FILE = (
     "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
 )
 
-EMBEDDING_MODEL_NAME = (
+Embedding_model_name = (
     "thenlper/gte-large"
 )
 
 TOP_K = 3
-
 MAX_TOKENS = 512
-
 TEMPERATURE = 0.2
-
 CONTEXT_WINDOW = 4096
 
-# =========================================================
 # LOAD EMBEDDING MODEL
-# =========================================================
-
 print("=" * 60)
 print("Loading embedding model...")
 print("=" * 60)
 
 embedding_model = HuggingFaceEmbeddings(
-    model_name=EMBEDDING_MODEL_NAME,
-    encode_kwargs={
-        "normalize_embeddings": True
-    }
+    model_name=Embedding_model_name,
+    encode_kwargs={"normalize_embeddings": True}
 )
 
 print("Embedding model loaded successfully.")
 
-# =========================================================
 # LOAD CHROMA VECTOR DATABASE
-# =========================================================
-
 print("\n" + "=" * 60)
 print("Loading Chroma vector database...")
 print("=" * 60)
@@ -90,10 +63,7 @@ vectorstore = Chroma(
 
 print("Vector database loaded successfully.")
 
-# =========================================================
 # CREATE RETRIEVER
-# =========================================================
-
 retriever = vectorstore.as_retriever(
     search_type="similarity",
     search_kwargs={"k": TOP_K}
@@ -101,10 +71,7 @@ retriever = vectorstore.as_retriever(
 
 print("Retriever initialized successfully.")
 
-# =========================================================
-# DOWNLOAD GGUF MODEL
-# =========================================================
-
+# DOWNLOAD LLM MODEL
 print("\n" + "=" * 60)
 print("Downloading GGUF model...")
 print("=" * 60)
@@ -116,10 +83,8 @@ model_path = hf_hub_download(
 
 print(f"Model downloaded successfully:\n{model_path}")
 
-# =========================================================
-# LOAD LOCAL LLM
-# =========================================================
 
+# LOAD LOCAL LLM
 print("\n" + "=" * 60)
 print("Loading local LLM...")
 print("=" * 60)
@@ -133,10 +98,8 @@ llm = Llama(
 
 print("Local LLM loaded successfully.")
 
-# =========================================================
-# PROMPT TEMPLATE
-# =========================================================
 
+# PROMPT TEMPLATE
 prompt_template = """
 You are a helpful AI assistant specialized
 in Chronic Kidney Disease (CKD).
@@ -144,8 +107,8 @@ in Chronic Kidney Disease (CKD).
 Answer the question ONLY using the
 provided context.
 
-If the answer is not found in the context,
-reply with:
+If the answer is not found in the
+context, reply with:
 
 "I don't know."
 
@@ -166,14 +129,12 @@ prompt = PromptTemplate(
     ]
 )
 
-# =========================================================
 # GENERATE RESPONSE FUNCTION
-# =========================================================
-
 def generate_response(query):
 
     # RETRIEVE DOCUMENTS
     retrieved_docs = retriever.invoke(query)
+
     # COMBINE CONTEXT
     context = "\n\n".join(
         [
@@ -188,7 +149,7 @@ def generate_response(query):
     )
     # GENERATE RESPONSE
     try:
-    
+
         response = llm(
         formatted_prompt,
         max_tokens=MAX_TOKENS,
@@ -198,16 +159,16 @@ def generate_response(query):
             "Context:"
             ]
         )
-    
+
         print(response)
-    
+
         answer = (
             response["choices"][0]["text"]
             .strip()
         )
-        
+
         return answer, retrieved_docs
-        
+
     except Exception as e:
         print(f"LLM Error: {e}")
         return "Error generating response.", []

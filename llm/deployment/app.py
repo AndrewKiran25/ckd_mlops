@@ -1,4 +1,7 @@
 
+# Install Streamlit
+!pip install streamlit
+
 # Import Libraries
 import streamlit as st
 import warnings
@@ -8,6 +11,7 @@ warnings.filterwarnings("ignore")
 
 # LangChain
 from langchain_chroma import Chroma
+from langchain_community.llms import LlamaCpp
 
 # Transformers
 from transformers import pipeline
@@ -21,6 +25,9 @@ st.set_page_config(
     layout="wide"
 )
 
+MODEL_REPO_ID = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
+
+MODEL_FILE = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
 
 # App Title
 st.title("🩺 Chronic Kidney Disease RAG Chatbot")
@@ -94,15 +101,17 @@ def load_retriever():
 @st.cache_resource
 def load_llm():
 
-    pipe = pipeline(
-        "text2text-generation",
-        model="google/flan-t5-base",
-        max_new_tokens=256,
-        temperature=0
+    model_path = hf_hub_download(
+        repo_id=MODEL_REPO_ID,
+        filename=MODEL_FILE
     )
 
-    llm = HuggingFacePipeline(
-        pipeline=pipe
+    llm = LlamaCpp(
+        model_path=model_path,
+        temperature=0,
+        max_tokens=256,
+        n_ctx=2048,
+        verbose=True
     )
 
     return llm
@@ -216,9 +225,7 @@ def generate_rag_response(
 
 # Load Models
 with st.spinner("Loading models and vector database..."):
-
     retriever = load_retriever()
-
     llm = load_llm()
 
 st.success("System Loaded Successfully")
@@ -271,4 +278,5 @@ if st.button("Generate Answer"):
 
         st.write(
             f"Response Time: {latency} seconds"
+        )
         )
