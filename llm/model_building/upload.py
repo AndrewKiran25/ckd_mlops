@@ -10,8 +10,7 @@ from huggingface_hub import (
 # CONFIGURATION
 hf_token = os.getenv("HF_TOKEN")
 REPO_ID = "Andrew2505/CKD-LLM"
-PROJECT_FOLDER = "ckd_db"
-
+folder_path=VECTOR_DB_DIR
 
 # CHECK TOKEN
 if not hf_token:
@@ -35,7 +34,7 @@ print("Repository ready.")
 
 # UPLOAD ENTIRE PROJECT FOLDER
 api.upload_folder(
-    folder_path=PROJECT_FOLDER,
+    folder_path=VECTOR_DB_DIR,
     repo_id=REPO_ID,
     repo_type="dataset",
     token=hf_token,
