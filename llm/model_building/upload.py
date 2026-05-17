@@ -38,7 +38,7 @@ api.upload_folder(
     folder_path=PROJECT_FOLDER,
     repo_id=REPO_ID,
     repo_type="dataset",
-    token=HF_TOKEN,
+    token=hf_token,
 )
 
 print("Upload completed successfully.")
