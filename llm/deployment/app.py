@@ -47,12 +47,22 @@ def load_embedding_model():
 @st.cache_resource
 def load_vectorstore():
 
+    from huggingface_hub import snapshot_download
+
+    snapshot_download(
+        repo_id="Andrew2505/CKD-LLM",
+        repo_type="dataset",
+        local_dir="ckd_rag_db"
+    )
+
     embedding_model = load_embedding_model()
 
     vectorstore = Chroma(
         persist_directory="ckd_rag_db",
         embedding_function=embedding_model
     )
+
+    print("DB COUNT:", vectorstore._collection.count())
 
     return vectorstore
 
