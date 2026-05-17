@@ -57,7 +57,7 @@ print("Loading Chroma vector database...")
 print("=" * 60)
 
 vectorstore = Chroma(
-    persist_directory="ckd_db",
+    persist_directory=VECTOR_DB_DIR,
     embedding_function=embedding_model
 )
 
