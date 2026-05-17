@@ -117,6 +117,7 @@ vectorstore = Chroma.from_documents(
     persist_directory=OUTPUT_DIR
 )
 
+print("DB COUNT:", vectorstore._collection.count())
 print("Chroma vector database created successfully.")
 
 # Load Persistent Vector Database
