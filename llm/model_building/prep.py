@@ -35,7 +35,6 @@ api = HfApi(token=hf_token)
 DATASET_PATH = "hf://datasets/Andrew2505/CKD-LLM/ckd.pdf"
 OUTPUT_DIR = "ckd_rag_db"
 REPO_ID = "Andrew2505/CKD-LLM"
-EMBEDDING_MODEL_NAME = "thenlper/gte-large"
 PDF_FILENAME = "ckd.pdf"
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
@@ -100,7 +99,7 @@ print(
 print("Loading embedding model...")
 
 embedding_model = HuggingFaceEmbeddings(
-    model_name=EMBEDDING_MODEL_NAME,
+    model_name="thenlper/gte-large",
     encode_kwargs={
         "normalize_embeddings": True
     }
