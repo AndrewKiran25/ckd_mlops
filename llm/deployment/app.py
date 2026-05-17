@@ -9,9 +9,12 @@ warnings.filterwarnings("ignore")
 from langchain_chroma import Chroma
 from langchain_community.llms import LlamaCpp
 
-# Transformers
-from transformers import pipeline
-from langchain_huggingface import HuggingFacePipeline
+# Hugging Face
+from huggingface_hub import (
+    hf_hub_download,
+    snapshot_download
+)
+
 from langchain_huggingface import HuggingFaceEmbeddings
 
 # Page Configuration
@@ -49,8 +52,6 @@ def load_embedding_model():
 # Load Vector Database
 @st.cache_resource
 def load_vectorstore():
-
-    from huggingface_hub import snapshot_download
 
     snapshot_download(
         repo_id="Andrew2505/CKD-LLM",
@@ -97,20 +98,30 @@ def load_retriever():
 @st.cache_resource
 def load_llm():
 
-    model_path = hf_hub_download(
-        repo_id=MODEL_REPO_ID,
-        filename=MODEL_FILE
-    )
-
-    llm = LlamaCpp(
-        model_path=model_path,
-        temperature=0,
-        max_tokens=256,
-        n_ctx=2048,
-        verbose=True
-    )
-
-    return llm
+    try:
+    
+        model_path = hf_hub_download(
+            repo_id=MODEL_REPO_ID,
+            filename=MODEL_FILE
+        )
+    
+        print(model_path)
+    
+        llm = LlamaCpp(
+            model_path=model_path,
+            temperature=0,
+            max_tokens=256,
+            n_ctx=2048,
+            n_threads=4,
+            n_batch=128,
+            verbose=True
+        )
+    
+        return llm
+    
+    except Exception as e:
+        print(f"Download Error: {e}")
+        eturn None
 
 # Prompt Templates
 qna_system_message = """
