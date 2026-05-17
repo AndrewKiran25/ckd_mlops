@@ -123,7 +123,7 @@ def generate_rag_response(
 
     # Retrieve Relevant Chunks
     relevant_document_chunks = (
-        retriever.get_relevant_documents(
+        retriever.invoke(
             query=query
         )
     )
