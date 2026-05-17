@@ -10,7 +10,7 @@ from huggingface_hub import (
 # CONFIGURATION
 hf_token = os.getenv("HF_TOKEN")
 REPO_ID = "Andrew2505/CKD-LLM"
-PROJECT_FOLDER = "ckd_rag_db"
+PROJECT_FOLDER = "ckd_db"
 
 
 # CHECK TOKEN
