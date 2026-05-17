@@ -31,13 +31,6 @@ st.title("🩺 Chronic Kidney Disease RAG Chatbot")
 st.markdown(
     """
     Ask questions related to Chronic Kidney Disease (CKD).
-
-    This application uses:
-    - Chroma Vector Database
-    - Sentence Transformer Embeddings
-    - Retrieval-Augmented Generation (RAG)
-    - FLAN-T5 Large Language Model
-    """
 )
 
 # Load Embedding Model
@@ -45,7 +38,7 @@ st.markdown(
 def load_embedding_model():
 
     embedding_model = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
+    model_name="thenlper/gte-large"
 )
 
     return embedding_model
