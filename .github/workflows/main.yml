@@ -74,7 +74,7 @@ jobs:
       #VERIFY VECTOR DB EXISTS
       - name: Verify CKD RAG DB
         run: |
-          ls -R ckd_rag_db
+          ls -R ckd_db
 
       # UPLOAD TO HUGGING FACE
       - name: Upload CKD RAG DB
