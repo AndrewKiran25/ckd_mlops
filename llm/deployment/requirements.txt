@@ -8,6 +8,7 @@ huggingface_hub==0.23.4
 llama-cpp-python==0.2.90
 
 # LangChain
+langchain-chroma==0.1.4
 langchain==0.2.14
 langchain-community==0.2.12
 langchain-huggingface==0.0.3
