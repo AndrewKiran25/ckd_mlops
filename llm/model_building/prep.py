@@ -12,8 +12,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import (
     PyMuPDFLoader
 )
-from langchain_community.embeddings import (
-    SentenceTransformerEmbeddings
+from langchain_huggingface import (
+    HuggingFaceEmbeddings
 )
 from langchain_community.vectorstores import Chroma
 
@@ -100,8 +100,11 @@ print(
 # Embedding Model
 print("Loading embedding model...")
 
-embedding_model = SentenceTransformerEmbeddings(
-    model_name=EMBEDDING_MODEL_NAME
+embedding_model = HuggingFaceEmbeddings(
+    model_name=EMBEDDING_MODEL_NAME,
+    encode_kwargs={
+        "normalize_embeddings": True
+    }
 )
 
 print("Embedding model loaded successfully.")
