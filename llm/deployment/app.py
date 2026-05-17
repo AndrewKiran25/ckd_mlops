@@ -62,6 +62,17 @@ def load_vectorstore():
         embedding_function=embedding_model
     )
 
+    #DEBUG (PUT HERE)
+    query = "chronic kidney disease"
+
+    docs = vectorstore.similarity_search(query, k=3)
+
+    st.write("TOP MATCHES:")
+
+    for i, d in enumerate(docs):
+        st.write(f"Chunk {i+1}")
+        st.write(d.page_content[:500])
+
     print("DB COUNT:", vectorstore._collection.count())
 
     return vectorstore
@@ -73,9 +84,9 @@ def load_retriever():
     vectorstore = load_vectorstore()
 
     retriever = vectorstore.as_retriever(
-        search_type="similarity",
-        search_kwargs={"k": 3}
-    )
+    search_type="similarity",
+    search_kwargs={"k": 5}
+)
 
     return retriever
 
