@@ -9,10 +9,6 @@ warnings.filterwarnings("ignore")
 # LangChain
 from langchain_community.vectorstores import Chroma
 
-from langchain_community.embeddings import (
-    SentenceTransformerEmbeddings
-)
-
 # Transformers
 from transformers import pipeline
 from langchain_huggingface import HuggingFacePipeline
@@ -31,6 +27,7 @@ st.title("🩺 Chronic Kidney Disease RAG Chatbot")
 st.markdown(
     """
     Ask questions related to Chronic Kidney Disease (CKD).
+    """
 )
 
 # Load Embedding Model
