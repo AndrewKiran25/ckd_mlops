@@ -35,8 +35,11 @@ st.markdown(
 def load_embedding_model():
 
     embedding_model = HuggingFaceEmbeddings(
-    model_name="thenlper/gte-large"
-)
+        model_name="thenlper/gte-large",
+        encode_kwargs={
+            "normalize_embeddings": True
+        }
+    )
 
     return embedding_model
 
@@ -124,9 +127,24 @@ def generate_rag_response(
     # Retrieve Relevant Chunks
     relevant_document_chunks = (
         retriever.invoke(
-            query=query
+            query
         )
     )
+
+    print("\n" + "=" * 60)
+    print("RETRIEVED DOCUMENTS")
+    print("=" * 60)
+
+    for idx, doc in enumerate(relevant_document_chunks):
+
+        print(f"\nChunk {idx+1}:\n")
+
+        print(doc.page_content[:1000])
+
+        print("\n" + "-" * 50)
+
+    if len(relevant_document_chunks) == 0:
+        return "No relevant documents found."
 
     # Extract Chunk Content
     context_list = [
