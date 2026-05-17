@@ -153,26 +153,13 @@ for idx, doc in enumerate(retrieved_docs):
 # Upload Vector Database Files
 print("\nUploading vector database files...")
 
-files = []
+from huggingface_hub import upload_folder
 
-for root, dirs, filenames in os.walk(OUTPUT_DIR):
-    for filename in filenames:
-        file_path = os.path.join(root, filename)
-        files.append(file_path)
-
-# Upload Files to Hugging Face
-for file_path in files:
-
-    relative_path = os.path.relpath(
-        file_path,
-        OUTPUT_DIR
-    )
-
-    api.upload_file(
-        path_or_fileobj=file_path,
-        path_in_repo=relative_path,
-        repo_id=REPO_ID,
-        repo_type="dataset",
-    )
+upload_folder(
+    folder_path=OUTPUT_DIR,
+    repo_id=REPO_ID,
+    repo_type="dataset",
+    token=hf_token
+)
 
 print("Upload completed successfully.")
