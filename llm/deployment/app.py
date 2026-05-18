@@ -52,29 +52,20 @@ def load_embedding_model():
 # Load Vector Database
 @st.cache_resource
 def load_vectorstore():
-    
+
     snapshot_download(
         repo_id="Andrew2505/CKD-LLM",
         repo_type="dataset",
-        local_dir="ckd_db"
+        allow_patterns=["ckd_db/*"],
+        local_dir="."
     )
+
     embedding_model = load_embedding_model()
 
     vectorstore = Chroma(
-        persist_directory="hf_download/ckd_db",
+        persist_directory="ckd_db",
         embedding_function=embedding_model
     )
-    
-    #DEBUG (PUT HERE)
-    query = "chronic kidney disease"
-
-    docs = vectorstore.similarity_search(query, k=3)
-
-    st.write("TOP MATCHES:")
-
-    for i, d in enumerate(docs):
-        st.write(f"Chunk {i+1}")
-        st.write(d.page_content[:500])
 
     print("DB COUNT:", vectorstore._collection.count())
 
