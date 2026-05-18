@@ -56,13 +56,13 @@ def load_vectorstore():
     snapshot_download(
         repo_id="Andrew2505/CKD-LLM",
         repo_type="dataset",
-        local_dir="ckd_rag_db"
+        local_dir="ckd_db"
     )
 
     embedding_model = load_embedding_model()
 
     vectorstore = Chroma(
-        persist_directory="ckd_rag_db",
+        persist_directory="ckd_db",
         embedding_function=embedding_model
     )
 
