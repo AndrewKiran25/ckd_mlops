@@ -24,9 +24,9 @@ st.set_page_config(
     layout="wide"
 )
 
-MODEL_REPO_ID = "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
+MODEL_REPO_ID = "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"
 
-MODEL_FILE = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
+MODEL_FILE = "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 
 # App Title
 st.title("🩺 Chronic Kidney Disease RAG Chatbot")
@@ -41,7 +41,7 @@ st.markdown(
 def load_embedding_model():
 
     embedding_model = HuggingFaceEmbeddings(
-        model_name="thenlper/gte-large",
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
         encode_kwargs={
             "normalize_embeddings": True
         }
@@ -52,11 +52,12 @@ def load_embedding_model():
 # Load Vector Database
 @st.cache_resource
 def load_vectorstore():
-
+    
     snapshot_download(
         repo_id="Andrew2505/CKD-LLM",
         repo_type="dataset",
-        local_dir="hf_download"
+        allow_patterns=["ckd_db/*"],
+        local_dir="."
     )
 
     embedding_model = load_embedding_model()
@@ -86,7 +87,6 @@ def load_vectorstore():
 def load_retriever():
 
     vectorstore = load_vectorstore()
-
     retriever = vectorstore.as_retriever(
     search_type="similarity",
     search_kwargs={"k": 5}
@@ -109,12 +109,12 @@ def load_llm():
     
         llm = LlamaCpp(
             model_path=model_path,
-            temperature=0,
-            max_tokens=256,
-            n_ctx=2048,
-            n_threads=4,
-            n_batch=128,
-            verbose=True
+            temperature=0.2,
+            max_tokens=128,
+            n_ctx=1024,
+            n_threads=2,
+            n_batch=32,
+            verbose=False
         )
     
         return llm
