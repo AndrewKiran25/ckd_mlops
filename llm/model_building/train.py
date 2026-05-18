@@ -26,9 +26,7 @@ MODEL_REPO_ID = "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"
 
 MODEL_FILE = "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 
-Embedding_model_name = (
-    "thenlper/gte-large"
-)
+Embedding_model_name = "sentence-transformers/all-MiniLM-L6-v2"
 
 TOP_K = 3
 MAX_TOKENS = 512
