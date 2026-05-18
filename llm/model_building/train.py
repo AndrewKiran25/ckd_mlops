@@ -17,6 +17,7 @@ from huggingface_hub import (
 )
 
 # LOCAL LLM IMPORT
+from langchain_community.llms import LlamaCpp
 from llama_cpp import Llama
 
 # CONFIGURATION
