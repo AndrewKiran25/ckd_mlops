@@ -40,7 +40,7 @@ if os.path.exists(out_dir):
 os.makedirs(out_dir)
 
 REPO_ID = "Andrew2505/CKD-LLM"
-Embedding_model_name = "thenlper/gte-large"
+Embedding_model_name = "sentence-transformers/all-MiniLM-L6-v2"
 PDF_FILENAME = "ckd.pdf"
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
@@ -99,7 +99,7 @@ print(
 print("Loading embedding model...")
 
 embedding_model = HuggingFaceEmbeddings(
-        model_name="thenlper/gte-large",
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
         encode_kwargs={
             "normalize_embeddings": True
         }
