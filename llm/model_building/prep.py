@@ -12,9 +12,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import (
     PyMuPDFLoader
 )
-from langchain_community.embeddings import (
-    SentenceTransformerEmbeddings
-)
+
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
 # Hugging Face
@@ -97,8 +96,11 @@ print(
 # Embedding Model
 print("Loading embedding model...")
 
-embedding_model = SentenceTransformerEmbeddings(
-    model_name=Embedding_model_name
+embedding_model = HuggingFaceEmbeddings(
+        model_name="thenlper/gte-large",
+        encode_kwargs={
+            "normalize_embeddings": True
+        }
 )
 
 print("Embedding model loaded successfully.")
@@ -152,19 +154,13 @@ for idx, doc in enumerate(retrieved_docs):
     print("-" * 50)
 
 # Upload Vector Database Files
-print("\nUploading vector database files...")
+print("\nUploading vector database folder...")
 
-files = os.listdir(out_dir)
-
-for file in files:
-    file_path = os.path.join(out_dir, file)
-    if os.path.isfile(file_path):
-
-        api.upload_file(
-            path_or_fileobj=file_path,
-            path_in_repo=file,
-            repo_id=REPO_ID,
-            repo_type="dataset",
-        )
+api.upload_folder(
+    folder_path=out_dir,
+    repo_id=REPO_ID,
+    repo_type="dataset",
+    path_in_repo="ckd_db"
+)
 
 print("Upload completed successfully.")
