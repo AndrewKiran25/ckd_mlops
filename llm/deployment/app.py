@@ -100,7 +100,7 @@ def load_llm():
             model_path=model_path,
             temperature=0.2,
             max_tokens=128,
-            n_ctx=1024,
+            n_ctx=1056,
             n_threads=2,
             n_batch=32,
             verbose=False
