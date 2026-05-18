@@ -2,7 +2,6 @@
 import streamlit as st
 import warnings
 import time
-
 warnings.filterwarnings("ignore")
 
 # LangChain
@@ -20,12 +19,11 @@ from langchain_huggingface import HuggingFaceEmbeddings
 # Page Configuration
 st.set_page_config(
     page_title="CKD RAG Chatbot",
-    page_icon="🩺",
+    page_icon="🩺", 
     layout="wide"
 )
 
 MODEL_REPO_ID = "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"
-
 MODEL_FILE = "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 
 # App Title
@@ -63,7 +61,7 @@ def load_vectorstore():
     embedding_model = load_embedding_model()
 
     vectorstore = Chroma(
-        persist_directory="ckd_db",
+        persist_directory="ckd_db/ckd_db",
         embedding_function=embedding_model
     )
 
@@ -157,6 +155,9 @@ def generate_rag_response(
         )
     )
 
+    if not relevant_document_chunks:
+        return "No relevant documents found."
+        
     print("\n" + "=" * 60)
     print("RETRIEVED DOCUMENTS")
     print("=" * 60)
@@ -164,13 +165,8 @@ def generate_rag_response(
     for idx, doc in enumerate(relevant_document_chunks):
 
         print(f"\nChunk {idx+1}:\n")
-
-        print(doc.page_content[:1000])
-
+        print(doc.page_content[:1000]) and 
         print("\n" + "-" * 50)
-
-    if len(relevant_document_chunks) == 0:
-        return "No relevant documents found."
 
     # Extract Chunk Content
     context_list = [
