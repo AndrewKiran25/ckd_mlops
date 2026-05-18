@@ -62,7 +62,7 @@ def load_vectorstore():
     embedding_model = load_embedding_model()
 
     vectorstore = Chroma(
-        persist_directory="hf_download/ckd_db"
+        persist_directory="hf_download/ckd_db",
         embedding_function=embedding_model
     )
     
