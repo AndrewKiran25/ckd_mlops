@@ -22,13 +22,9 @@ from llama_cpp import Llama
 # CONFIGURATION
 VECTOR_DB_DIR = "ckd_db"
 
-MODEL_REPO_ID = (
-    "TheBloke/Mistral-7B-Instruct-v0.2-GGUF"
-)
+MODEL_REPO_ID = "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"
 
-MODEL_FILE = (
-    "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
-)
+MODEL_FILE = "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 
 Embedding_model_name = (
     "thenlper/gte-large"
@@ -45,8 +41,10 @@ print("Loading embedding model...")
 print("=" * 60)
 
 embedding_model = HuggingFaceEmbeddings(
-    model_name=Embedding_model_name,
-    encode_kwargs={"normalize_embeddings": True}
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    encode_kwargs={
+        "normalize_embeddings": True
+    }
 )
 
 print("Embedding model loaded successfully.")
@@ -89,11 +87,14 @@ print("\n" + "=" * 60)
 print("Loading local LLM...")
 print("=" * 60)
 
-llm = Llama(
-    model_path=model_path,
-    n_ctx=CONTEXT_WINDOW,
-    n_threads=os.cpu_count(),
-    verbose=False
+llm = LlamaCpp(
+            model_path=model_path,
+            temperature=0.2,
+            max_tokens=128,
+            n_ctx=1024,
+            n_threads=2,
+            n_batch=32,
+            verbose=False
 )
 
 print("Local LLM loaded successfully.")
