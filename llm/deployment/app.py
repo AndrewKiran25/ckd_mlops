@@ -56,7 +56,7 @@ def load_vectorstore():
     snapshot_download(
         repo_id="Andrew2505/CKD-LLM",
         repo_type="dataset",
-        local_dir="ckd_db"
+        local_dir="hf_download"
     )
 
     embedding_model = load_embedding_model()
