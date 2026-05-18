@@ -34,8 +34,10 @@ api = HfApi(token=hf_token)
 # Create Output Directory
 out_dir = 'ckd_db'
 
-if not os.path.exists(out_dir):
-  os.makedirs(out_dir)
+if os.path.exists(out_dir):
+    shutil.rmtree(out_dir)
+
+os.makedirs(out_dir)
 
 REPO_ID = "Andrew2505/CKD-LLM"
 Embedding_model_name = "thenlper/gte-large"
