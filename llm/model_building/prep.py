@@ -99,7 +99,7 @@ print(
 print("Loading embedding model...")
 
 embedding_model = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
         encode_kwargs={
             "normalize_embeddings": True
         }
