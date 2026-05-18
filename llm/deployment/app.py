@@ -165,7 +165,7 @@ def generate_rag_response(
     for idx, doc in enumerate(relevant_document_chunks):
 
         print(f"\nChunk {idx+1}:\n")
-        print(doc.page_content[:1000]) and 
+        print(doc.page_content[:1000])
         print("\n" + "-" * 50)
 
     # Extract Chunk Content
